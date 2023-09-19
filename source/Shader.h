@@ -13,6 +13,7 @@ public:
     // void loadShaders(const std::string &vertexPath, const std::string &fragmentPath);
     // void addShaders(const std::string &vertexSource, const std::string &fragmentSource);
     uint32_t loadProgram();
+    void terminate();
     int32_t getProgramId();
 private:
     std::vector<std::string> shaderSources;

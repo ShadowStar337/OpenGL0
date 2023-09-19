@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <iostream>
 #include <stdint.h>
+#include "../vendors/stb_image.h"
 #include "Renderer.h"
 #include "Debug.h"
 
@@ -13,6 +14,9 @@ void Renderer::init()
 {
     shaderProgram.init();
     glDebugMessageCallback(openGLMessage, nullptr);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 }
 
 uint32_t Renderer::loadShader(const uint32_t shaderType, const std::string& shaderSource)
@@ -84,14 +88,13 @@ void Renderer::loadVertexAttribArray(const AttributeLayout* attributeLayouts, co
             i,
             attributeLayout.count,
             attributeLayout.type,
-            attributeLayout.normalized,
+            false,
             stride,
             (void*) offset
         );
         std::cout << "i: " << i << std::endl;
         std::cout << "attributeLayout.count: " << attributeLayout.count << std::endl;
         std::cout << "attributeLayout.type: " << attributeLayout.type << " GL_FLOAT: " << GL_FLOAT << std::endl;
-        std::cout << "attributeLayout.normalized: " << attributeLayout.normalized<< std::endl;
         std::cout << "stride: " << stride << std::endl;
         std::cout << "offset: " << (void*)offset << std::endl;
         
@@ -99,18 +102,58 @@ void Renderer::loadVertexAttribArray(const AttributeLayout* attributeLayouts, co
     }
 }
 
-void Renderer::setUniform1f(const std::string& uniformName, float value)
+int32_t Renderer::getUniformLocation(const std::string& uniformName)
 {
-    int32_t location = glGetUniformLocation(shaderProgram.getProgramId(), uniformName.c_str());
-    if (location == -1)
+    int32_t uniformLocation = glGetUniformLocation(shaderProgram.getProgramId(), uniformName.c_str());
+    if (uniformLocation == -1)
     {
-        std::cout << "[RENDERER]: OpenGL could not find the location of uniform " + uniformName + "." << std::endl; 
+        std::cout << "[RENDERER]: OpenGL could not find the location of uniform " + uniformName + "." << std::endl;
     }
-    glUniform1f(location, value);
+    
+    return uniformLocation;
+}
+
+int32_t Renderer::setUniform1f(const std::string& uniformName, float value)
+{
+    int32_t uniformLocation = getUniformLocation(uniformName);
+    glUniform1f(uniformLocation, value);
+    return uniformLocation;
+}
+
+int32_t Renderer::setUniform1i(const std::string& uniformName, int32_t value)
+{
+    int32_t uniformLocation = getUniformLocation(uniformName);
+    glUniform1i(uniformLocation, value);
+    return uniformLocation;
+}
+
+int32_t Renderer::setUniformMatrix3fv(const std::string& uniformName, const uint32_t count, const float* value)
+{
+    int32_t uniformLocation = getUniformLocation(uniformName);
+    glUniformMatrix3fv(uniformLocation, count, false, value);
+    return uniformLocation;
+}
+
+int32_t Renderer::setUniformMatrix4fv(const std::string& uniformName, const uint32_t count, const float* value)
+{
+    int32_t uniformLocation = getUniformLocation(uniformName);
+    glUniformMatrix4fv(uniformLocation, count, false, value);
+    return uniformLocation;
+}
+
+uint32_t Renderer::loadTexture(const std::string& texturePath, uint32_t textureUnit)
+{
+    return  texture.loadTexture(texturePath, textureUnit);
 }
 
 void Renderer::draw(const uint32_t indexCount)
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
+}
+
+void Renderer::terminate()
+{
+    shaderProgram.terminate();
+    texture.terminate();
 }

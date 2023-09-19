@@ -84,6 +84,7 @@ uint32_t ShaderProgram::setupProgram()
     {
         return 0;
     }
+    
     return programId;
 }
 
@@ -167,4 +168,9 @@ void ShaderProgram::getShaderTypeStr(const uint32_t shaderType, std::string &sha
 int32_t ShaderProgram::getProgramId()
 {
     return programId;
+}
+
+void ShaderProgram::terminate()
+{
+    
 }

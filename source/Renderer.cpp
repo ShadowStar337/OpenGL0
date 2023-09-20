@@ -13,10 +13,13 @@ Renderer::Renderer()
 void Renderer::init()
 {
     shaderProgram.init();
+    glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(openGLMessage, nullptr);
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_BACK);
+
+    glEnable(GL_DEPTH_TEST); 
 }
 
 uint32_t Renderer::loadShader(const uint32_t shaderType, const std::string& shaderSource)
@@ -92,11 +95,6 @@ void Renderer::loadVertexAttribArray(const AttributeLayout* attributeLayouts, co
             stride,
             (void*) offset
         );
-        std::cout << "i: " << i << std::endl;
-        std::cout << "attributeLayout.count: " << attributeLayout.count << std::endl;
-        std::cout << "attributeLayout.type: " << attributeLayout.type << " GL_FLOAT: " << GL_FLOAT << std::endl;
-        std::cout << "stride: " << stride << std::endl;
-        std::cout << "offset: " << (void*)offset << std::endl;
         
         offset += getGLTypeSize(attributeLayout.type) * attributeLayout.count;
     }
@@ -108,6 +106,11 @@ int32_t Renderer::getUniformLocation(const std::string& uniformName)
     if (uniformLocation == -1)
     {
         std::cout << "[RENDERER]: OpenGL could not find the location of uniform " + uniformName + "." << std::endl;
+        GLenum err;
+        while((err = glGetError()) != GL_NO_ERROR)
+        {
+            std::cout << err << std::endl;
+        }
     }
     
     return uniformLocation;
@@ -137,18 +140,18 @@ int32_t Renderer::setUniformMatrix3fv(const std::string& uniformName, const uint
 int32_t Renderer::setUniformMatrix4fv(const std::string& uniformName, const uint32_t count, const float* value)
 {
     int32_t uniformLocation = getUniformLocation(uniformName);
-    glUniformMatrix4fv(uniformLocation, count, false, value);
+    glUniformMatrix4fv(uniformLocation, count, true, value);
     return uniformLocation;
 }
 
 uint32_t Renderer::loadTexture(const std::string& texturePath, uint32_t textureUnit)
 {
-    return  texture.loadTexture(texturePath, textureUnit);
+    return texture.loadTexture(texturePath, textureUnit);
 }
 
 void Renderer::draw(const uint32_t indexCount)
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
 }
 

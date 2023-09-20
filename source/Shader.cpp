@@ -112,7 +112,9 @@ bool ShaderProgram::errorCheckProgram(const uint32_t programId) const
         glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &length);
 
         char *message = new char[length];
-        glGetProgramInfoLog(programId, length, &length, message);
+
+        glGetProgramInfoLog(programId, length, nullptr, message);
+        message[length] = '\0';
 
         std::cout << "Error message for shader program: " << std::endl;
         std::cout << message << std::endl;

@@ -21,7 +21,6 @@ void Application::init()
     entities.reserve(5);
     vertices.reserve(6 * 24);
     indices.reserve(3 * 12);
-    modelMatrices.reserve(5);
 
     projectionMatrix.init(4, 4);
 }
@@ -79,24 +78,7 @@ void Application::generateProjectionMatrix()
 }
 
 void Application::load()
-{
-    vertices.clear();
-    indices.clear();
-    modelMatrices.clear();
-    vertexCount = 0;
-    indexCount = 0;
-
-    for (uint32_t i = 0; i < entities.size(); i++)
-    {
-        loadEntity(entities[i]);
-    }
-
-    renderer.loadBuffer(GL_ARRAY_BUFFER, vertices.data(), sizeof(float) * vertices.size());
-    renderer.loadBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.data(), sizeof(uint32_t) * indices.size());
-    renderer.loadVertexAttribArray(attributeLayouts, 3);
-
-    
-}
+{}
 
 void Application::loadEntity(const Entity& entity)
 {
@@ -109,19 +91,16 @@ void Application::loadEntity(const Entity& entity)
     const std::vector<uint32_t>& indices = entity.getIndices();
     for (uint32_t i = 0; i < indices.size(); i++)
     {
-        this->indices.push_back(indices[i] + vertexCount);
+        this->indices.push_back(indices[i]);
     }
-    vertexCount += entity.getVertexCount();
-    indexCount += indices.size();
+    indexCount = indices.size();
 
-    modelMatrices.emplace_back();
-    Matrix &modelMatrix = modelMatrices[modelMatrices.size() - 1];
     modelMatrix.init(4, 4);
     modelMatrix.setData(entity.getModelMatrix().getDataCopy());
     modelMatrix = modelMatrix.multiply(projectionMatrix);
 
     const float *modelMatrixData = modelMatrix.getData().data();
-    renderer.setUniformMatrix4fv("transformationMatrices[" + std::to_string(entity.getModelId()) + "]", 1, modelMatrixData);
+    renderer.setUniformMatrix4fv("transformationMatrix", 1, modelMatrixData);
 }
 
 bool Application::shouldLoop()
@@ -137,7 +116,21 @@ void Application::terminate()
 
 void Application::draw()
 {
-    renderer.draw(indexCount);
+    vertices.clear();
+    indices.clear();
+
+    renderer.clear();
+    for (uint32_t i = 0; i < entities.size(); i++)
+    {
+        loadEntity(entities[i]);
+
+        renderer.loadBuffer(GL_ARRAY_BUFFER, vertices.data(), sizeof(float) * vertices.size());
+        renderer.loadBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.data(), sizeof(uint32_t) * indices.size());
+        renderer.loadVertexAttribArray(attributeLayouts, 3);
+
+        renderer.draw(indexCount);
+    }
+
     window.swapBuffers();
 }
 

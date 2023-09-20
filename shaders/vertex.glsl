@@ -6,7 +6,7 @@ layout (location = 2) in float modelId;
 
 out vec2 v_TextureCoordinates;
 
-uniform mat4x4 transformationMatrices[256];
+uniform mat4x4 transformationMatrix;
 
 void main()
 {
@@ -43,6 +43,6 @@ void main()
         
     }
     */
-    gl_Position = transformationMatrices[int(modelId)] * position;
+    gl_Position = transformationMatrix * position;
     v_TextureCoordinates = textureCoordinates;
 }

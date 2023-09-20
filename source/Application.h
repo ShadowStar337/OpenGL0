@@ -30,7 +30,7 @@ private:
 
     std::vector<float> vertices;
     std::vector<uint32_t> indices;
-    std::vector<Matrix> modelMatrices;
+    Matrix modelMatrix;
 
     Matrix projectionMatrix;
     AttributeLayout attributeLayouts[3];

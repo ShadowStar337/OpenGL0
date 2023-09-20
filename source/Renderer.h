@@ -22,6 +22,7 @@ public:
     int32_t setUniformMatrix3fv(const std::string& uniformName, const uint32_t count, const float* value);
     int32_t setUniformMatrix4fv(const std::string& uniformName, const uint32_t count, const float* value);
 
+    void clear();
     void draw(const uint32_t indexCount);
     void terminate();
 private:

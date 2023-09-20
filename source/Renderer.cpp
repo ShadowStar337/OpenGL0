@@ -149,9 +149,14 @@ uint32_t Renderer::loadTexture(const std::string& texturePath, uint32_t textureU
     return texture.loadTexture(texturePath, textureUnit);
 }
 
-void Renderer::draw(const uint32_t indexCount)
+void Renderer::clear()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Renderer::draw(const uint32_t indexCount)
+{
+    
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
 }
 
